@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Evolutionary Curves</title>
+        <!--CSS-->
+        <link rel="stylesheet" href="./css/layout.css">
+        <link rel="stylesheet" href="./css/style.css">
+        <!--JS-->
+        <script src="./js/p5.js"></script>
+        <script src="./js/math.js"></script>
+        <script src="./js/colors.js"></script>
+        <script src="./js/helper.js"></script>
+        <script src="./js/bezier.js"></script>
+        <script src="./js/checker.js"></script>
+        <!--MIN JS-->
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+    <body>
+        <div class="slides-container">
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-mf-content bg1" style="background-image: url('./img/evocurves.gif'); background-size: contain; background-position: center; background-repeat: no-repeat; height: 100%;"></div>
+                    <div class="item item-xsf-content bg1">
+                        <h3 class="c4">jsta-sms-uos-2025<br>(flick left and right to navigate)</h3>
+                    </div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-5x2 c4 drop">
+                        <h1 class="c4 center">Bézier Curves</h1>
+                        <p>A Bézier curve is a type of parametric curve which has many practical applications, including robotics. The Bézier curve is constructed by taking a weighted combination of these <b>control points</b>.</p>
+                        <p>Let \(\mathcal{P} = (\boldsymbol{P}_{i} \in \mathbb{R}^{2} \mid i = 0, \dots, n)\) be an ordered collection of specifically chosen two-dimensional vectors (these are the <b>control points</b>). The Bézier curve function using these control points can be given as:</p>
+                        <p class="center l-fs">
+                            \(
+                                \boldsymbol{B}(t) = \sum\limits_{i = 0}^{n}\binom{n}{i}(1 - t)^{n - i}t^{i}\boldsymbol{P}_{i}    
+                            \)
+                        </p>
+                        <p> where \(t \in [0, 1]\)</p>
+                    </div>
+                    <div class="item item-5x3 bg1" style="background-image: url('./img/bezcurve.gif'); background-size: contain; background-position: center; background-repeat: no-repeat; height: 100%;"></div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-1x5 drop">
+                        <p>Let us suppose we have an environment, represented by a 2d plane, a drone, and a fixed start and end position for a patrol route. In other words, we begin with two control points.</p>
+                    </div>
+                    <div class="item item-mf-content bg1" style="background-image: url('./img/drone1.gif'); background-size: contain; background-position: center; background-repeat: no-repeat; height: 100%;"></div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-1x5 drop">
+                        <p>We can introduce "goodies" that the drone may be interested in collecting. These could be physical things to pick up, or signals to process. Then we will add extra control points to make sure that the drone passes through as many of these "goodies" as possible.</p>
+                    </div>
+                    <div class="item item-mf-content bg1" style="background-image: url('./img/drone2.gif'); background-size: contain; background-position: center; background-repeat: no-repeat; height: 100%;"></div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-1x5 drop">
+                        <p>But what if there are "baddies" that the drone should try to avoid? These might be physical things to avoid like traps, or signal jammers. We shall have to add more control points to avoid these baddies and maybe alter our inner control point locations as well.</p>
+                    </div>
+                    <div class="item item-mf-content bg1" style="background-image: url('./img/drone3.gif'); background-size: contain; background-position: center; background-repeat: no-repeat; height: 100%;"></div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-5x1 bg1"></div>
+                    <div class="item item-5x4 drop">
+                        <h2 class="c4 center">What's the problem?</h2>
+                        <h3 class="c4">What we have:</h3>
+                        <ol>
+                            <li>An ordered collection of control points, \(\mathcal{P} = (\boldsymbol{P}_{i} \in \mathbb{R}^{2} \mid i = 1, \dots, n)\), that has at least two points in it (the start and end patrol points).</li><br>
+                            <li>A set of "good things" we want our Bézier curve to pass through, \(D \subset \mathbb{R}^{2}\).</li><br>
+                            <li>A set of "bad things" we want our Bézier curve to avoid, \(E \subset \mathbb{R}^{2}\).</li><br>
+                            <p class="c4 center"><b>We shall assume \(D \cap E = \varnothing\).</b></p>
+                        </ol>
+                        <h3 class="c4">What we'd like:</h3>
+                        <p>We'd like to find a collection of control points such that the Bézier curve constructed from them passes through as many good things as possible, avoids as many bad things as possible, and uses as few control points as possible.</p>
+                        <h3 class="c4">How can we find a good collection?</h3>
+                        <p>We shall perform an intelligent search over all possibilities - the <b>hypothesis space</b>, \(H\).</p>
+                    </div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-5x4 drop">
+                        <h2 class="c4">How do we judge solutions?</h2>
+                        <p>Suppose we have two solutions, \(h_{1}, h_{2} \in H\). We shall say that solution one is better than solution two, if, and only if, the <b>fitness score</b> of solution one is greater than the fitness score of solution two.</p>
+                        <p class="c4 center">\(h_{1} \succ h_{2} \iff \phi(h_{1}) \gt \phi(h_{2})\)</p>
+                        <p><b>Remember:</b>a solution is just a specific ordered collection of control points.</p>
+                        <h3 class="c4">How do we judge fitness?</h3>
+                        <p>Let \(S_{h} \subseteq D\) be the set of all good things that are close enough to the solution's Bézier curve to count as being passed through. We can say that if the distance between a good thing and any point on the Bézier curve is below a certain value \(r\), then it counts as being passed through.</p>
+                        <p class="c4 center">\(S_{h} = \{\boldsymbol{d} \in D \mid \exists t \in [0, 1] : ||\boldsymbol{d} - \boldsymbol{B}(t)|| \le r\}\)</p>
+                        <p>Let \(T_{h} \subseteq E\) be the set of all bad things that are close enough to the solution's Bézier curve to count as being passed through. We shall define this similarly to \(S_{h}\).</p>
+                        <p>The fitness of a solution, \(\phi: H \rightarrow \mathbb{R}\), can be given as:</p>
+                        <p class="c4 center">\(\phi(h) = \frac{1}{|h|}(|S_{h}| - |T_{h}|)\)</p>
+                    </div>
+                    <div class="item item-5x1 bg1"></div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-5x2 bg1" style="background-image: url('./img/search.gif'); background-size: contain; background-position: center; background-repeat: no-repeat; height: 100%;"></div>
+                    <div class="item item-5x3 drop">
+                        <h2 class="c4 center">What the fitness score tells us</h2>
+                        <p>Consider, the fitness score, as we have defined it is:</p>
+                        <p class="c4 center">\(\phi(h) = \frac{1}{|h|}(|S_{h}| - |T_{h}|)\)</p>
+                        <p>This is the equivalent to asking us to <b>minimize</b> \(|h|\), and <b>maximize</b> \(|S_{h}|\) when searching a hypothesis space, \(H\). In machine learning, this screams <b>Evolutionary Algorithm</b>.</p>
+                        <h2 class="c4 center">Genetic Algorithm</h2>
+                        <p>Start with a fixed number of initial of solutions (<b>population</b>), \(K_{\epsilon} \subset H\). Decide on a maximum number of iterations, \(\epsilon_{\text{MAX}}\).</p>
+                        <p><b>WHILE</b> \(\epsilon \lt \epsilon_{\text{MAX}}\)</p>
+                        <ol>
+                            <li>Grade the current population, \(K_{\epsilon}\).</li><br>
+                            <li>Choose some proportion of the best performers to <b>survive</b>, \(J\).</li><br>
+                            <li>Make \(|K_{\epsilon}| - |J|\) <b>offspring</b> by selecting pairs of <b>parents</b> from \(K_{\epsilon}\) and mixing and matching their attributes. Each offspring, \(c \in C\), has a chance to mutate some of its attributes.</li><br>
+                            <li>Set the next generation: \(K_{\epsilon + 1} = J \cup C\)</li><br>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-5x5 drop">
+                       <h1 class="c4 center">Activity</h1>
+                       <p>In small teams or by yourself, you will represent a hypothesis of inner control points; the two outer control points will be fixed. Your hypothesis will be an ordered collection of 2-dimensional points, \(h = (\boldsymbol{P}_{i} \in \mathbb{R}^{2} \mid 1 \le i \le 5)\).</p>
+                       <p><b>You'll have something like this written down: \(\boldsymbol{P}_{1} = (x_{1}, y_{1}), \boldsymbol{P}_{2} = (x_{2}, y_{2}), \dots\)</b>.</p>
+                       <p>Find another team or person and make offspring hypotheses. You can do this by:</p>
+                       <ul>
+                        <li>Using some of your control points and some of theirs in an order of your choice.</li>
+                        <li>Mixing the control point vector components.</li>
+                        <li>If one of you has more control points than the other, flip a coin. If you win, make the offspring have as many control points as your hypothesis. If they win, make the offspring have as many control points as their hypothesis.</li>
+                       </ul>
+                       <p>After you've made an offspring flip a coin 5 times. If it comes up heads at least 4 times, then flip a coin again. On a head, add a new control point to the offspring with random values (between 0 and 800). On a tail remove one of the control points from the offpring. You should never have more than 7 or fewer than 1 inner control points.</p>
+                       <p>Keep track of your original hypothesis and all the offspring you create and calculate their fitness scores.</p>
+                       <p>At the end, the best performing hypothesis wins!</p>
+                    </div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-1x5 drop">
+                       <h1 class="c4 center">Hypothesis Generator</h1>
+                    </div>
+                    <div class="item item-4x4 bg1" id="sk-hyp"></div>
+                    <div class="item item-4x1 drop">
+                        <button class="center" onclick="makeNewHypothesis()"><b>Generate</b></button>
+                        <table id="hyp-tbl"></table>
+                        <p id="hyp-fit"></p>
+                    </div>
+                </div>
+            </section>
+            <section class="slide">
+                <div class="slide-grid">
+                    <div class="item item-1x5 drop">
+                       <h1 class="c4 center">Hypothesis Fitness Score Calculator</h1>
+                    </div>
+                    <div class="item item-4x2 drop">
+                        <h2>Enter your inner control point vectors below:</h2>
+                        <table>
+                            <tr>
+                                <th>\(\boldsymbol{P}_{1}\)</th><td>(<input type="number" id="inpx1"><td>,</td><td><input type="number" id="inpy1">)</td>
+                            </tr>
+                            <tr>
+                                <th>\(\boldsymbol{P}_{2}\)</th><td>(<input type="number" id="inpx2"><td>,</td></td><td><input type="number" id="inpy2">)</td>
+                            </tr>
+                            <tr>
+                                <th>\(\boldsymbol{P}_{3}\)</th><td>(<input type="number" id="inpx3"><td>,</td></td><td><input type="number" id="inpy3">)</td>
+                            </tr>
+                            <tr>
+                                <th>\(\boldsymbol{P}_{4}\)</th><td>(<input type="number" id="inpx4"><td>,</td></td><td><input type="number" id="inpy4">)</td>
+                            </tr>
+                            <tr>
+                                <th>\(\boldsymbol{P}_{5}\)</th><td>(<input type="number" id="inpx5"><td>,</td></td><td><input type="number" id="inpy5">)</td>
+                            </tr>
+                            <tr>
+                                <th>\(\boldsymbol{P}_{6}\)</th><td>(<input type="number" id="inpx6"><td>,</td></td><td><input type="number" id="inpy6">)</td>
+                            </tr>
+                            <tr>
+                                <th>\(\boldsymbol{P}_{7}\)</th><td>(<input type="number" id="inpx7"><td>,</td></td><td><input type="number" id="inpy7">)</td>
+                            </tr>
+                        </table>
+                        <button class="center" onclick="fitnessCalculator()"><b>Calculate</b></button>
+                    </div>
+                    <div class="item item-4x3 bg1">
+                        <h1 id="fit-h" class="c4 center"></h1>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <!--SKETCHES-->
+        <script src="./js/sketches.js"></script>
+    </body>
+</html>

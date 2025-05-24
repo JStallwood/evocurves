@@ -1,0 +1,34 @@
+:root {
+    --c1: #F8EDED;
+    --c2: #FF8225;
+    --c3: #B43F3F;
+    --c4: #173B45;
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url("../ttf/Roboto-VariableFont_wdth\,wght.ttf");
+}
+
+@font-face {
+    font-family: "Domine";
+    src: url("../ttf/Domine-VariableFont_wght.ttf");
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.bg1 { background-color: var(--c1); }
+.bg2 { background-color: var(--c2); }
+.bg3 { background-color: var(--c3); }
+.bg4 { background-color: var(--c4); }
+
+.c1 { color: var(--c1); }
+.c2 { color: var(--c2); }
+.c3 { color: var(--c3); }
+.c4 { color: var(--c4); }
+
+.drop { z-index: 10; box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;}
+
