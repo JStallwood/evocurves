@@ -61,17 +61,23 @@ a {
 .item h3 { font-size: 2.5vmin;}
 .item p, .item li, .item th, .item td  { font-size: 2vmin;}
 
-.item input { width: 50%;}
+.item input { width: 80%;}
 
 .item button {
-    border: 10px solid var(--c2);
     border-radius: 25px;
     background-color: var(--c2);
     color: white;
     width: 90%;
+    margin: 1vmin;
 }
 
-.item table { margin: 1vmin;}
+.item button:hover {
+    cursor: pointer;
+    background-color: white;
+    color: var(--c2);
+}
+
+.item table { margin-left: auto; margin-right: auto; width: 90%;}
 
 .item table, tr, th {
     border-collapse: collapse;
