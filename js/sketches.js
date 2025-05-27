@@ -1,5 +1,3 @@
-
-
 const HYPOTHESIS_GEN = (CONTAINER, TABLE, FITNESS_P) => {
     return (p) => {
         const W = CONTAINER.offsetWidth;
@@ -160,3 +158,78 @@ function makeNewHypothesis() {
 makeNewHypothesis();
 
 document.makeNewHypothesis = makeNewHypothesis;
+
+const CHECKERSKETCH = (CONTAINER, CONTROLPOINTS, BEZIER, GOODIES, BADDIES) => {
+    
+    return (p) => {
+        const W = CONTAINER.offsetWidth;
+        const H = CONTAINER.offsetHeight;
+
+        const MINW = W * 0.1;
+        const MAXW = W * 0.9;
+        const MINH = H * 0.9;
+        const MAXH = H * 0.1;
+
+        const RESOLUTION_W = [0, 800];
+        const RESOLUTION_H = [0, 800];
+
+        const MAPPED_CP = CONTROLPOINTS.map(v => [
+                mapRange(v[0], RESOLUTION_W[0], RESOLUTION_W[1], MINW, MAXW),
+                mapRange(v[1], RESOLUTION_H[0], RESOLUTION_H[1], MINH, MAXH)
+            ]);
+
+        const MAPPED_BC = BEZIER.map(v => [
+                mapRange(v[0], RESOLUTION_W[0], RESOLUTION_W[1], MINW, MAXW),
+                mapRange(v[1], RESOLUTION_H[0], RESOLUTION_H[1], MINH, MAXH)
+            ]);
+
+        const MAPPED_G = GOODIES.map(v => [
+            mapRange(v[0], RESOLUTION_W[0], RESOLUTION_W[1], MINW, MAXW),
+            mapRange(v[1], RESOLUTION_H[0], RESOLUTION_H[1], MINH, MAXH)
+        ]);
+
+        const MAPPED_B = BADDIES.map(v => [
+            mapRange(v[0], RESOLUTION_W[0], RESOLUTION_W[1], MINW, MAXW),
+            mapRange(v[1], RESOLUTION_H[0], RESOLUTION_H[1], MINH, MAXH)
+        ]);
+
+        p.setup = function() {
+            p.createCanvas(W, H);
+
+            p.background(COLORS[0]);
+
+            p.stroke(COLORS[3]);
+            p.strokeWeight(W * 0.005);
+            p.noFill();
+            p.beginShape();
+            MAPPED_BC.forEach(v => p.vertex(v[0], v[1]));
+            p.endShape();
+
+            for(var i = 0; i < MAPPED_CP.length; i++) {
+                let v = MAPPED_CP[i];
+                p.stroke(COLORS[3]);
+                p.strokeWeight(W * 0.03);
+                p.point(v[0], v[1]);
+                p.textSize(W * 0.015);
+                p.textAlign(p.CENTER, p.CENTER);
+                p.fill(255);
+                p.noStroke();
+                p.text(i.toString(), v[0], v[1]);
+                if(i === 0 || i === MAPPED_CP.length - 1) {
+                    p.fill(COLORS[3]);
+                    p.text(`(${CONTROLPOINTS[i][0]}, ${CONTROLPOINTS[i][1]})`, v[0], v[1] + W * 0.045);
+                }
+                
+            }
+
+            p.stroke(COLORS[1]);
+            p.strokeWeight(W * 0.035);
+            MAPPED_G.forEach(v => p.point(v[0], v[1]));
+
+            p.noStroke();
+            p.fill(COLORS[2]);
+            p.rectMode(p.CENTER);
+            MAPPED_B.forEach(v => p.rect(v[0], v[1], W * 0.035));
+        };
+    };
+}
