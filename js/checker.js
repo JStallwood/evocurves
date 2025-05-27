@@ -25,8 +25,11 @@ function fitnessCalculator() {
 
     const FITNESS_H = document.getElementById("fit-h");
     FITNESS_H.innerHTML = `\\(\\phi(h) = ${fitness.toFixed(4)}\\)`;
-
     MathJax.typeset();
+
+    const CHECKER_S = document.getElementById("sk-chk");
+    CHECKER_S.innerHTML = "";
+    new p5(CHECKERSKETCH(CHECKER_S, CONTROLPOINTS, BEZIER, GOODIES, BADDIES), "sk-chk");
     
 }
 
