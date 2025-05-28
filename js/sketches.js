@@ -113,7 +113,7 @@ const HYPOTHESIS_GEN = (CONTAINER, TABLE, FITNESS_P) => {
         }
 
         function calculateFitness(GOODIES, BADDIES, BEZIER) {
-            const r = W * 0.0175;
+            const r = 20;
             var goodScore = 0;
             for(var i = 0; i < GOODIES.length; i++) {
                 const g = GOODIES[i];
